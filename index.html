@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Authentication</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        form {
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>User Authentication</h1>
+    <button onclick="showSignupForm()">Signup</button>
+    <button onclick="showLoginForm()">Login</button>
+
+    <!-- Signup Form -->
+    <form id="signupForm" onsubmit="signup(event)">
+        <h2>Signup Form</h2>
+        <label for="firstName">First Name:</label>
+        <input type="text" id="firstName" name="firstName" required><br><br>
+        
+        <label for="lastName">Last Name:</label>
+        <input type="text" id="lastName" name="lastName" required><br><br>
+        
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br>
+        
+        <label for="phone">Phone Number:</label>
+        <input type="text" id="phone" name="phone" required><br><br>
+        
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br><br>
+        
+        <label for="qualification">Qualification:</label>
+        <input type="text" id="qualification" name="qualification" required><br><br>
+        
+        <button type="submit">Signup</button>
+    </form>
+
+    <!-- Login Form -->
+    <form id="loginForm" style="display:none;" onsubmit="login(event)">
+        <h2>Login Form</h2>
+        <label for="loginEmail">Email:</label>
+        <input type="email" id="loginEmail" name="loginEmail" required><br><br>
+        
+        <label for="loginPassword">Password:</label>
+        <input type="password" id="loginPassword" name="loginPassword" required><br><br>
+        
+        <button type="submit">Login</button>
+    </form>
+
+    <script>
+        function showSignupForm() {
+            document.getElementById("signupForm").style.display = "block";
+            document.getElementById("loginForm").style.display = "none";
+        }
+
+        function showLoginForm() {
+            document.getElementById("signupForm").style.display = "none";
+            document.getElementById("loginForm").style.display = "block";
+        }
+
+        async function signup(event) {
+            event.preventDefault();
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+            const qualification = document.getElementById('qualification').value;
+
+            const response = await fetch('http://localhost:8000/signup/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email,
+                    phone: phone,
+                    password: password,
+                    qualification: qualification
+                })
+            });
+
+            if (response.ok) {
+                alert('Signup successful');
+            } else {
+                alert('Signup failed');
+            }
+        }
+
+     // Example of login request using fetch
+    // Function to handle login submission
+const login = async (event) => {
+    event.preventDefault();  // Prevent form submission
+
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    try {
+        const response = await fetch('http://localhost:8000/login/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Login failed');
+        }
+
+        const data = await response.json();
+
+        if (data.message === 'Login successful') {
+            alert('Login successful');  // Replace with your handling for successful login
+            // Example: Redirect to another page or update UI
+        } else {
+            throw new Error('Login failed');
+        }
+    } catch (error) {
+        console.error('Error:', error.message);
+        alert('Login failed');  // Display an error message for unsuccessful login
+    }
+};
+
+// Attach the login function to the login form submission
+document.getElementById('loginForm').addEventListener('submit', login);
+
+
+
+        
+    </script>
+</body>
+</html>
