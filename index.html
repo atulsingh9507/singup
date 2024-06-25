@@ -20,7 +20,6 @@
     <button onclick="showSignupForm()">Signup</button>
     <button onclick="showLoginForm()">Login</button>
 
-    <!-- Signup Form -->
     <form id="signupForm" onsubmit="signup(event)">
         <h2>Signup Form</h2>
         <label for="firstName">First Name:</label>
@@ -33,16 +32,17 @@
         <input type="email" id="email" name="email" required><br><br>
         
         <label for="phone">Phone Number:</label>
-        <input type="text" id="phone" name="phone" required><br><br>
+        <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" required><br><br>
         
         <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required><br><br>
+        <input type="password" id="password" name="password" minlength="8" required><br><br>
         
         <label for="qualification">Qualification:</label>
         <input type="text" id="qualification" name="qualification" required><br><br>
         
         <button type="submit">Signup</button>
     </form>
+    
 
     <!-- Login Form -->
     <form id="loginForm" style="display:none;" onsubmit="login(event)">
@@ -55,6 +55,7 @@
         
         <button type="submit">Login</button>
     </form>
+    
 
     <script>
         function showSignupForm() {
