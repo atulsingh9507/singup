@@ -8,10 +8,64 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #3498db; /* Blue color */
+            color: white;
+        }
+        button:hover {
+            background-color: #2980b9; /* Darker blue color on hover */
         }
         form {
             display: none;
             margin-top: 20px;
+        }
+        form.active {
+            display: block;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="password"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="tel"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #3498db; /* Blue color on focus */
+        }
+        button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #3498db; /* Blue color */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button[type="submit"]:hover {
+            background-color: #2980b9; /* Darker blue color on hover */
         }
     </style>
 </head>
@@ -20,7 +74,7 @@
     <button onclick="showSignupForm()">Signup</button>
     <button onclick="showLoginForm()">Login</button>
 
-    <form id="signupForm" onsubmit="signup(event)">
+    <form id="signupForm" class="active" onsubmit="signup(event)">
         <h2>Signup Form</h2>
         <label for="firstName">First Name:</label>
         <input type="text" id="firstName" name="firstName" required><br><br>
@@ -35,7 +89,9 @@
         <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" required><br><br>
         
         <label for="password">Password:</label>
-        <input type="password" id="password" name="password" minlength="8" required><br><br>
+        <input type="password" id="password" name="password" minlength="8" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}">
+        <!-- pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}" ensures at least one digit, one lowercase, one uppercase, and one special character -->
+        <br><br>
         
         <label for="qualification">Qualification:</label>
         <input type="text" id="qualification" name="qualification" required><br><br>
@@ -45,7 +101,7 @@
     
 
     <!-- Login Form -->
-    <form id="loginForm" style="display:none;" onsubmit="login(event)">
+    <form id="loginForm" onsubmit="login(event)">
         <h2>Login Form</h2>
         <label for="loginEmail">Email:</label>
         <input type="email" id="loginEmail" name="loginEmail" required><br><br>
@@ -59,13 +115,13 @@
 
     <script>
         function showSignupForm() {
-            document.getElementById("signupForm").style.display = "block";
-            document.getElementById("loginForm").style.display = "none";
+            document.getElementById("signupForm").classList.add("active");
+            document.getElementById("loginForm").classList.remove("active");
         }
 
         function showLoginForm() {
-            document.getElementById("signupForm").style.display = "none";
-            document.getElementById("loginForm").style.display = "block";
+            document.getElementById("signupForm").classList.remove("active");
+            document.getElementById("loginForm").classList.add("active");
         }
 
         async function signup(event) {
@@ -76,6 +132,12 @@
             const phone = document.getElementById('phone').value;
             const password = document.getElementById('password').value;
             const qualification = document.getElementById('qualification').value;
+
+            // Check if password meets criteria
+            if (!isValidPassword(password)) {
+                alert('Password must contain at least one digit, one lowercase letter, one uppercase letter, and one special character.');
+                return;
+            }
 
             const response = await fetch('http://localhost:8000/signup/', {
                 method: 'POST',
@@ -99,47 +161,42 @@
             }
         }
 
-     // Example of login request using fetch
-    // Function to handle login submission
-const login = async (event) => {
-    event.preventDefault();  // Prevent form submission
-
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-
-    try {
-        const response = await fetch('http://localhost:8000/login/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password }),
-        });
-
-        if (!response.ok) {
-            throw new Error('Login failed');
+        function isValidPassword(password) {
+            // Password must contain at least one digit, one lowercase letter, one uppercase letter, and one special character.
+            return /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}$/.test(password);
         }
 
-        const data = await response.json();
+        async function login(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
 
-        if (data.message === 'Login successful') {
-            alert('Login successful');  // Replace with your handling for successful login
-            // Example: Redirect to another page or update UI
-        } else {
-            throw new Error('Login failed');
+            try {
+                const response = await fetch('http://localhost:8000/login/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Login failed');
+                }
+
+                const data = await response.json();
+
+                if (data.message === 'Login successful') {
+                    alert('Login successful');
+                    // Handle successful login (e.g., redirect)
+                } else {
+                    throw new Error('Login failed');
+                }
+            } catch (error) {
+                console.error('Error:', error.message);
+                alert('Login failed');
+            }
         }
-    } catch (error) {
-        console.error('Error:', error.message);
-        alert('Login failed');  // Display an error message for unsuccessful login
-    }
-};
-
-// Attach the login function to the login form submission
-document.getElementById('loginForm').addEventListener('submit', login);
-
-
-
-        
     </script>
 </body>
 </html>
